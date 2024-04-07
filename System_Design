@@ -1,0 +1,163 @@
+System Design
+
+2/8. SQL NoSQL Database
+
+SQL:
+
+DB tabular view, data has structured relations, ACID transactions supports(supports concurrency)
+
+Impedance mismatch: Database schema is different from in-memory computing model, to build an in-memory model, we may need to read from multiple tables.
+
+NoSQL:
+
+For semi structured or unstructured data. No strong data integrity. 
+
+Scalable: no relations between tables, easier to sclae horizontally. 
+Simple design: we can store data in a document, no need to read from nultiple table to build in-memory object
+Supports for semi/unstructured data
+COST: many open source solutions
+
+Key-Value DB: key is a primary key, value can be anything like a complex object. DynamoDB, Redis, Memcached
+Usage examples: Social media user profiles whre user id or names can be the key, and the profile is the value.
+Or Real time recommadations where user id or product id is the key, and recommendations are the values.
+
+Document DB: store data that is in the format of xml, json, bson. MongoDB, Google Cloud Firestore
+Examples in e-commerce platform, each product could have many attributes
+
+Graph DB, suitable for social network where nodes have relationships. Neo4J
+
+Columnar DB: store data in columns instead of rows, strong for large data aggregation and analytics Cassandra, Amazon RedShift
+
+For service to be high available, high scalable, and performant
+
+Replication: Keep multiple copies of the data into different nodes geographically distributed
+
+Sync vs Async for Primary and secondary 
+1) Sync: wait for all nodes to complete, what if one of the node failed or network failure, not performant
+2) Async: return immediately after primary node completes, but may lose data if the parmary node failed and the data is not fully replicated to secondary nodes.
+Multi leader replication: 
+Peer to peer replication: Quorum
+
+
+Partitioning/Sharding:
+
+Horizontal sharding: 
+1) key range based
+cons: 
+1. hard to perform range query on non-partitioning key,hard to query by date if partiotion key is customerId
+2. could result in uneven distribution
+
+2) hash based
+cons:
+1) does not work well if server is down or new server is added
+
+3) consistent hashing with virtual nodes
+Implement in a hash ring, server and node are hashed and then mapped to the ring
+Basic CH solves the problems of migrating lot of data. But the server nodes may still be unevenly distributed.
+Introduce virtual nodes to solve this.
+
+
+What is a preference list??
+
+
+Available Reailable <think of self check station as example, available may not be reailable>Scalable 
+
+latency throughput
+
+2/9 
+
+2/16
+
+cache
+
+can be added at multiple layers
+
+memory read nanoseconds, hard drive millseconds
+
+cache strategy/patterns
+
+cash-aside:
+application will read from db and then insert/update cache. Cache is not updated by db directly.
+If cache fails, the whole service can run just application layer will need to read from db.
+
+read/write through:
+read heavy(news feed)
+client - app - cache -db
+cache is talking to the db, cache has the respobislibity of updating db
+cons: another layer of delay
+maybe we cab pre-laod the cache
+
+
+write around cache:
+application will write to the db directly, but application will read from cache.
+for write heavy service because we don not write to cache,
+
+write back/async mode:
+application will write to the cache and accumulate, cache will do a batch write to the db to persist.
+good for heavy write.
+cons: what if cache layer break, lose all the writes.
+all the write is added to some log?
+
+
+read ahead
+
+oauth
+
+how would you prevent hacker attacks to run out of your uuid?
+can anonymous user also shorten url? can they analyze the usages of their shortened urls?
+
+Sorted String table, bloom filter, bit map
+
+API Gateway, Load Balancer, Index on SQL and NoSQL
+
+Available zone/region?
+
+Is is possible to add indexes on NoSQL database non-key field?
+
+data base read replica?
+
+what is API key?
+As you must've noticed, we're using an API key to prevent abuse of our services. Using this API key we can limit the users to a certain number of requests per second or minute. This is quite a standard practice for developer APIs and should cover our extended requirement.
+
+SQL database index:
+
+SQL Server creates a unique index on the primary key columns. This index includes all key columns in the case of a composite key.
+This is called primary index or clustered/clustering index.
+
+B-trees are one of the most commonly used data structures for clustering indexes. They are balanced tree structures that store keys in sorted order, making them efficient for range queries as well as point lookups. B-trees maintain a balanced structure, ensuring relatively uniform access times for all elements.
+B+ trees have additional features such as separate leaf nodes containing actual data records (or pointers to data records), while non-leaf nodes only contain keys for navigation. 
+
+Secondary index
+ used in a database to facilitate faster retrieval of data based on columns other than the primary key. 
+
+ bloom filter
+
+prredicate query expensive
+index on short url filed
+
+on disk index of db 
+LSM tree + SS Table, write heavy
+B tree, reads heavy
+
+push or pull cache
+
+write back 
+write through, two phase commits
+write around, 
+
+analytics
+
+put the information into kafka, to analytics side
+instead of sedning kafka write each request we could aggregate the request and then send/flush them as a batch write
+
+stream process
+in-mem message broker
+log-based message broker write ahead log
+
+kafka spark streaming mini batch
+
+
+how to delete 
+delete from db then delete from cache or delete cache first?
+延时双删
+? binlog
